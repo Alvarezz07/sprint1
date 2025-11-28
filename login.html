@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticación</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .auth-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        h2 {
+            color: #e0e0e0;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #707070;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            color: #a0a0a0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #764ba2;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #707070;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            margin-right: 15px;
+        }
+
+        .divider::after {
+            margin-left: 15px;
+        }
+
+        .switch-form {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .switch-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .switch-form a:hover {
+            color: #764ba2;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak {
+            width: 33%;
+            background: #ff4757;
+        }
+
+        .strength-medium {
+            width: 66%;
+            background: #ffa502;
+        }
+
+        .strength-strong {
+            width: 100%;
+            background: #26de81;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(38, 222, 129, 0.1);
+            color: #26de81;
+            border: 1px solid rgba(38, 222, 129, 0.3);
+        }
+
+        .message.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tarjeta de Inicio de Sesión -->
+        <div class="auth-card active" id="loginCard">
+            <div class="logo">
+                <div class="logo-circle">A</div>
+            </div>
+            <h2>Bienvenido</h2>
+            <p class="subtitle">Inicia sesión para continuar</p>
+            
+            <div class="message" id="loginMessage"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Nombre de usuario</label>
+                    <input type="text" id="loginUsername" placeholder="tu_usuario" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Recordar sesión</label>
+                </div>
+                
+                <div class="forgot-password">
+                    <a href="#" onclick="showCard('resetCard'); return false;">¿Olvidaste tu contraseña?</a>
+                </div>
+                
+                <button type="submit" class="btn">Iniciar Sesión</button>
+                
+                <div class="switch-form">
+                    ¿No tienes cuenta? <a onclick="showCard('registerCard')">Regístrate</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tarjeta de Registro -->
+        <div class="auth-card" id="registerCard">
+            <div class="logo">
+                <div class="logo-circle">A</div>
+            </div>
+            <h2>Crear cuenta</h2>
+            <p class="subtitle">Regístrate para comenzar</p>
+            
+            <div class="message" id="registerMessage"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nombre completo</label>
+                    <input type="text" id="registerName" placeholder="Tu nombre completo" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerUsername">Nombre de usuario</label>
+                    <input type="text" id="registerUsername" placeholder="tu_usuario" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Correo electrónico</label>
+                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 8 caracteres" required oninput="checkPasswordStrength(this.value)">
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerConfirm">Confirmar contraseña</label>
+                    <input type="password" id="registerConfirm" placeholder="Repite tu contraseña" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Acepto los términos y condiciones</label>
+                </div>
+                
+                <button type="submit" class="btn">Crear Cuenta</button>
+                
+                <div class="switch-form">
+                    ¿Ya tienes cuenta? <a onclick="showCard('loginCard')">Inicia sesión</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tarjeta de Recuperación de Contraseña -->
+        <div class="auth-card" id="resetCard">
+            <div class="logo">
+                <div class="logo-circle">A</div>
+            </div>
+            <h2>Recuperar contraseña</h2>
+            <p class="subtitle">Te enviaremos un enlace de recuperación</p>
+            
+            <form>
+                <div class="form-group">
+                    <label for="resetEmail">Correo electrónico</label>
+                    <input type="email" id="resetEmail" placeholder="tu@email.com" required>
+                </div>
+                
+                <button type="submit" class="btn">Enviar enlace</button>
+                
+                <div class="divider"></div>
+                
+                <div class="switch-form">
+                    <a onclick="showCard('loginCard')">← Volver al inicio de sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = window.location.origin;
+        console.log('API_BASE_URL:', API_BASE_URL);
+        
+        // Función para mostrar tarjetas
+        function showCard(cardId) {
+            const cards = document.querySelectorAll('.auth-card');
+            cards.forEach(card => card.classList.remove('active'));
+            document.getElementById(cardId).classList.add('active');
+            
+            // Limpiar mensajes al cambiar de tarjeta
+            clearMessages();
+        }
+
+        // Función para limpiar mensajes
+        function clearMessages() {
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.style.display = 'none';
+                msg.textContent = '';
+                msg.className = 'message';
+            });
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(elementId, message, type) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+        }
+
+        // Función para verificar fortaleza de contraseña
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthContainer = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+            
+            strengthContainer.style.display = 'block';
+            strengthBar.className = 'password-strength-bar';
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength === 3) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+        }
+
+        // Función para hacer peticiones a la API
+        async function apiRequest(endpoint, method = 'GET', data = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Error en la petición');
+                }
+                
+                return result;
+            } catch (error) {
+                throw new Error(error.message || 'Error de conexión');
+            }
+        }
+
+        // Función para manejar el registro
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('.btn');
+            const card = form.closest('.auth-card');
+            
+            // Obtener datos del formulario
+            const name = document.getElementById('registerName').value.trim();
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirm').value;
+            const terms = document.getElementById('terms').checked;
+
+            // Validaciones del frontend
+            if (!name || !username || !email || !password || !confirmPassword) {
+                showMessage('registerMessage', 'Todos los campos son obligatorios', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('registerMessage', 'Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('registerMessage', 'La contraseña debe tener al menos 8 caracteres', 'error');
+                return;
+            }
+
+            if (!terms) {
+                showMessage('registerMessage', 'Debes aceptar los términos y condiciones', 'error');
+                return;
+            }
+
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creando cuenta...';
+            card.classList.add('loading');
+
+            try {
+                console.log('Attempting to register user:', { name, username, email });
+                const result = await apiRequest('/auth/register', 'POST', {
+                    name: name,
+                    username: username,
+                    email: email,
+                    password: password
+                });
+
+                showMessage('registerMessage', result.message, 'success');
+                
+                // Limpiar formulario después de 2 segundos
+                setTimeout(() => {
+                    form.reset();
+                    showCard('loginCard');
+                }, 2000);
+
+            } catch (error) {
+                showMessage('registerMessage', error.message, 'error');
+            } finally {
+                // Restaurar estado del botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Crear Cuenta';
+                card.classList.remove('loading');
+            }
+        }
+
+        // Función para manejar el login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('.btn');
+            const card = form.closest('.auth-card');
+            
+            // Obtener datos del formulario
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            // Validaciones del frontend
+            if (!username || !password) {
+                showMessage('loginMessage', 'Todos los campos son obligatorios', 'error');
+                return;
+            }
+
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Iniciando sesión...';
+            card.classList.add('loading');
+
+            try {
+                const result = await apiRequest('/auth/login', 'POST', {
+                    username: username,
+                    password: password
+                });
+
+                showMessage('loginMessage', `¡Bienvenido ${result.user.name}!`, 'success');
+                
+                // Guardar información del usuario en localStorage
+                localStorage.setItem('user', JSON.stringify(result.user));
+                
+                // Redirigir al dashboard después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+
+            } catch (error) {
+                showMessage('loginMessage', error.message, 'error');
+            } finally {
+                // Restaurar estado del botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Iniciar Sesión';
+                card.classList.remove('loading');
+            }
+        }
+
+        // Función para manejar recuperación de contraseña (placeholder)
+        function handlePasswordReset(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!email) {
+                alert('Por favor ingresa tu correo electrónico');
+                return;
+            }
+            
+            alert('Funcionalidad de recuperación de contraseña no implementada en este sprint.');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Formulario de registro
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            
+            // Formulario de login
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Formulario de recuperación de contraseña
+            document.getElementById('resetCard').querySelector('form').addEventListener('submit', handlePasswordReset);
+            
+            // Verificar si hay un usuario logueado
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                console.log('Usuario logueado:', user);
+            }
+        });
+    </script>
+</body>
+</html>
