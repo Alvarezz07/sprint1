@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Préstamo - Sistema de Préstamos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #707070;
+        }
+
+        .loan-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .loan-type-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .loan-type-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #667eea;
+        }
+
+        .loan-type-card.selected {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .loan-type-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .loan-type-card p {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .amount-input {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .amount-input input {
+            padding-left: 40px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-right: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(38, 222, 129, 0.1);
+            color: #26de81;
+            border: 1px solid rgba(38, 222, 129, 0.3);
+        }
+
+        .message.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .user-search-container {
+            position: relative;
+        }
+
+        .user-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .user-search-item {
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-search-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .user-search-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-details h4 {
+            color: #e0e0e0;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-details p {
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+
+        .selected-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .remove-user {
+            background: rgba(255, 71, 87, 0.2);
+            border: none;
+            color: #ff4757;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-user:hover {
+            background: rgba(255, 71, 87, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .loan-type-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Nuevo Préstamo</h1>
+            <a href="/dashboard" class="back-btn">← Volver al Dashboard</a>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <div class="message" id="message"></div>
+
+            <form id="loanForm">
+                <!-- Tipo de Préstamo -->
+                <div class="form-section">
+                    <h2 class="section-title">Tipo de Préstamo</h2>
+                    <div class="loan-type-selector">
+                        <div class="loan-type-card" data-type="money" onclick="selectLoanType('money')">
+                            <h3>💰 Dinero</h3>
+                            <p>Préstamo de efectivo</p>
+                        </div>
+                        <div class="loan-type-card" data-type="object" onclick="selectLoanType('object')">
+                            <h3>📦 Objeto</h3>
+                            <p>Préstamo de artículo físico</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Prestatario -->
+                <div class="form-section">
+                    <h2 class="section-title">Información del Prestatario</h2>
+                    <div class="form-group">
+                        <label for="borrowerSearch">Buscar Usuario</label>
+                        <div class="user-search-container">
+                            <input type="text" id="borrowerSearch" placeholder="Escribe el nombre o email del usuario..." autocomplete="off">
+                            <div class="user-search-results" id="userSearchResults"></div>
+                        </div>
+                        <div id="selectedUser"></div>
+                    </div>
+                </div>
+
+                <!-- Detalles del Préstamo -->
+                <div class="form-section">
+                    <h2 class="section-title">Detalles del Préstamo</h2>
+                    
+                    <!-- Monto (solo para dinero) -->
+                    <div class="form-group" id="amountGroup" style="display: none;">
+                        <label for="amount">Monto del Préstamo</label>
+                        <div class="amount-input">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="amount" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Información del Objeto (solo para objetos) -->
+                    <div id="objectGroup" style="display: none;">
+                        <div class="form-group">
+                            <label for="objectName">Nombre del Objeto</label>
+                            <input type="text" id="objectName" placeholder="Ej: Laptop, Libro, Herramienta...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="objectDescription">Descripción del Objeto</label>
+                            <textarea id="objectDescription" rows="3" placeholder="Describe el objeto y su estado..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="objectImage">URL de Imagen (opcional)</label>
+                            <input type="url" id="objectImage" placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="loanDate">Fecha de Préstamo</label>
+                            <input type="date" id="loanDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dueDate">Fecha de Vencimiento</label>
+                            <input type="date" id="dueDate" required>
+                        </div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="form-group">
+                        <label for="notes">Notas Adicionales</label>
+                        <textarea id="notes" rows="3" placeholder="Información adicional sobre el préstamo..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="form-row">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Limpiar Formulario</button>
+                    <button type="submit" class="btn">Crear Préstamo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = window.location.origin;
+        
+        // Estado del formulario
+        let selectedLoanType = null;
+        let selectedBorrower = null;
+        let searchTimeout = null;
+
+        // Función para seleccionar tipo de préstamo
+        function selectLoanType(type) {
+            selectedLoanType = type;
+            
+            // Actualizar UI
+            document.querySelectorAll('.loan-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            // Mostrar/ocultar campos según el tipo
+            if (type === 'money') {
+                document.getElementById('amountGroup').style.display = 'block';
+                document.getElementById('objectGroup').style.display = 'none';
+                document.getElementById('amount').required = true;
+                document.getElementById('objectName').required = false;
+            } else if (type === 'object') {
+                document.getElementById('amountGroup').style.display = 'none';
+                document.getElementById('objectGroup').style.display = 'block';
+                document.getElementById('amount').required = false;
+                document.getElementById('objectName').required = true;
+            }
+        }
+
+        // Función para buscar usuarios
+        async function searchUsers(query) {
+            if (query.length < 2) {
+                document.getElementById('userSearchResults').style.display = 'none';
+                return;
+            }
+
+            try {
+                const savedUser = localStorage.getItem('user');
+                const userId = savedUser ? (JSON.parse(savedUser).id || 1) : 1;
+                const response = await fetch(`${API_BASE_URL}/loans/users?search=${encodeURIComponent(query)}&user_id=${encodeURIComponent(userId)}`, {
+                    headers: { 'X-User-Id': String(userId) }
+                });
+                const users = await response.json();
+                
+                displayUserResults(users);
+            } catch (error) {
+                console.error('Error al buscar usuarios:', error);
+            }
+        }
+
+        // Función para mostrar resultados de búsqueda
+        function displayUserResults(users) {
+            const container = document.getElementById('userSearchResults');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="user-search-item">No se encontraron usuarios</div>';
+            } else {
+                container.innerHTML = users.map(user => `
+                    <div class="user-search-item" onclick="selectBorrower(${JSON.stringify(user).replace(/"/g, '&quot;')})">
+                        <div class="user-info">
+                            <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                            <div class="user-details">
+                                <h4>${user.name}</h4>
+                                <p>@${user.username} • ${user.email}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            container.style.display = 'block';
+        }
+
+        // Función para seleccionar prestatario
+        function selectBorrower(user) {
+            selectedBorrower = user;
+            
+            // Actualizar UI
+            document.getElementById('borrowerSearch').value = '';
+            document.getElementById('userSearchResults').style.display = 'none';
+            
+            document.getElementById('selectedUser').innerHTML = `
+                <div class="selected-user">
+                    <div class="user-info">
+                        <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>@${user.username}</p>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-user" onclick="removeBorrower()">✕</button>
+                </div>
+            `;
+        }
+
+        // Función para remover prestatario seleccionado
+        function removeBorrower() {
+            selectedBorrower = null;
+            document.getElementById('selectedUser').innerHTML = '';
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+            
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Función para limpiar formulario
+        function resetForm() {
+            document.getElementById('loanForm').reset();
+            selectedLoanType = null;
+            selectedBorrower = null;
+            
+            document.querySelectorAll('.loan-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            document.getElementById('amountGroup').style.display = 'none';
+            document.getElementById('objectGroup').style.display = 'none';
+            document.getElementById('selectedUser').innerHTML = '';
+            document.getElementById('userSearchResults').style.display = 'none';
+        }
+
+        // Función para manejar envío del formulario
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            // Validaciones
+            if (!selectedLoanType) {
+                showMessage('Por favor selecciona el tipo de préstamo', 'error');
+                return;
+            }
+            
+            if (!selectedBorrower) {
+                showMessage('Por favor selecciona un prestatario', 'error');
+                return;
+            }
+            
+            const loanDate = document.getElementById('loanDate').value;
+            const dueDate = document.getElementById('dueDate').value;
+            
+            if (!loanDate || !dueDate) {
+                showMessage('Por favor completa las fechas', 'error');
+                return;
+            }
+            
+            if (new Date(dueDate) <= new Date(loanDate)) {
+                showMessage('La fecha de vencimiento debe ser posterior a la fecha de préstamo', 'error');
+                return;
+            }
+            
+            if (selectedLoanType === 'money') {
+                const amount = parseFloat(document.getElementById('amount').value);
+                if (!amount || amount <= 0) {
+                    showMessage('Por favor ingresa un monto válido', 'error');
+                    return;
+                }
+            }
+            
+            if (selectedLoanType === 'object') {
+                const objectName = document.getElementById('objectName').value.trim();
+                if (!objectName) {
+                    showMessage('Por favor ingresa el nombre del objeto', 'error');
+                    return;
+                }
+            }
+            
+            // Preparar datos
+            const loanData = {
+                borrower_id: selectedBorrower.id,
+                loan_type: selectedLoanType,
+                loan_date: loanDate,
+                due_date: dueDate,
+                notes: document.getElementById('notes').value.trim()
+            };
+            
+            if (selectedLoanType === 'money') {
+                loanData.amount = parseFloat(document.getElementById('amount').value);
+            } else {
+                loanData.object_name = document.getElementById('objectName').value.trim();
+                loanData.object_description = document.getElementById('objectDescription').value.trim();
+                loanData.object_image = document.getElementById('objectImage').value.trim();
+            }
+            
+            // Enviar datos
+            try {
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creando préstamo...';
+                
+                const savedUser2 = localStorage.getItem('user');
+                const userId2 = savedUser2 ? (JSON.parse(savedUser2).id || 1) : 1;
+                const response = await fetch(`${API_BASE_URL}/loans/?user_id=${encodeURIComponent(userId2)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Id': String(userId2)
+                    },
+                    body: JSON.stringify(loanData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('¡Préstamo creado exitosamente!', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                } else {
+                    showMessage(result.detail || 'Error al crear el préstamo', 'error');
+                }
+                
+            } catch (error) {
+                showMessage('Error de conexión', 'error');
+            } finally {
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Crear Préstamo';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual como fecha de préstamo
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('loanDate').value = today;
+            
+            // Establecer fecha de vencimiento por defecto (7 días)
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 7);
+            document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
+            
+            // Event listener para búsqueda de usuarios
+            document.getElementById('borrowerSearch').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchUsers(e.target.value);
+                }, 300);
+            });
+            
+            // Event listener para formulario
+            document.getElementById('loanForm').addEventListener('submit', handleSubmit);
+            
+            // Ocultar resultados de búsqueda al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-search-container')) {
+                    document.getElementById('userSearchResults').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

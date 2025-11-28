@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Préstamos - Sistema de Préstamos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .filters-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filters-title {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-group input::placeholder {
+            color: #707070;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .loans-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .loans-count {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .loans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .loan-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .loan-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .loan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .loan-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loan-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: rgba(38, 222, 129, 0.2);
+            color: #26de81;
+        }
+
+        .status-overdue {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .status-returned {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .loan-info {
+            margin-bottom: 15px;
+        }
+
+        .loan-title {
+            color: #e0e0e0;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .loan-amount {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .loan-description {
+            color: #a0a0a0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .loan-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: #707070;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            color: #e0e0e0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .loan-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.primary {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .action-btn.primary:hover {
+            background: rgba(102, 126, 234, 0.3);
+        }
+
+        .action-btn.success {
+            background: rgba(38, 222, 129, 0.2);
+            color: #26de81;
+            border: 1px solid rgba(38, 222, 129, 0.3);
+        }
+
+        .action-btn.success:hover {
+            background: rgba(38, 222, 129, 0.3);
+        }
+
+        .action-btn.danger {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(255, 71, 87, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            margin-bottom: 25px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(38, 222, 129, 0.1);
+            color: #26de81;
+            border: 1px solid rgba(38, 222, 129, 0.3);
+        }
+
+        .message.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                justify-content: center;
+            }
+            
+            .loans-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📋 Mis Préstamos</h1>
+            <a href="/dashboard" class="back-btn">← Volver al Dashboard</a>
+        </div>
+
+        <!-- Message -->
+        <div class="message" id="message"></div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h2 class="filters-title">🔍 Filtros de Búsqueda</h2>
+            
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="statusFilter">Estado</label>
+                    <select id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activos</option>
+                        <option value="returned">Devueltos</option>
+                        <option value="overdue">Vencidos</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="typeFilter">Tipo</label>
+                    <select id="typeFilter">
+                        <option value="">Todos los tipos</option>
+                        <option value="money">Dinero</option>
+                        <option value="object">Objeto</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dateFromFilter">Fecha Desde</label>
+                    <input type="date" id="dateFromFilter">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dateToFilter">Fecha Hasta</label>
+                    <input type="date" id="dateToFilter">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="searchFilter">Buscar</label>
+                    <input type="text" id="searchFilter" placeholder="Nombre de objeto, notas...">
+                </div>
+                <div class="filter-group">
+                    <label for="searchField">Campo</label>
+                    <select id="searchField">
+                        <option value="all">Todos</option>
+                        <option value="object">Objeto / Monto</option>
+                        <option value="borrower">Prestatario</option>
+                        <option value="notes">Notas</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <button class="btn btn-secondary" onclick="clearFilters()">Limpiar Filtros</button>
+                <button class="btn" onclick="applyFilters()">Aplicar Filtros</button>
+            </div>
+        </div>
+
+        <!-- Loans Section -->
+        <div class="loans-section">
+            <div class="section-header">
+                <h2 class="section-title">Préstamos Encontrados</h2>
+                <div class="loans-count" id="loansCount">0 préstamos</div>
+            </div>
+            
+            <div class="loans-grid" id="loansGrid">
+                <div class="loading">Cargando préstamos...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = window.location.origin;
+        
+        // Estado de la aplicación
+        let currentFilters = {};
+        let allLoans = [];
+
+        // Función para cargar préstamos
+        async function loadLoans() {
+            try {
+                const savedUser = localStorage.getItem('user');
+                const userId = savedUser ? (JSON.parse(savedUser).id || 1) : 1;
+                const response = await fetch(`${API_BASE_URL}/loans/my-loans?user_id=${encodeURIComponent(userId)}`, { headers: { 'X-User-Id': String(userId) }});
+                const loans = await response.json();
+                
+                allLoans = loans;
+                displayLoans(loans);
+                updateLoansCount(loans.length);
+                
+            } catch (error) {
+                console.error('Error al cargar préstamos:', error);
+                showMessage('Error al cargar préstamos', 'error');
+            }
+        }
+
+        // Función para mostrar préstamos
+        function displayLoans(loans) {
+            const container = document.getElementById('loansGrid');
+            
+            if (loans.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No hay préstamos</h3>
+                        <p>No se encontraron préstamos con los filtros aplicados.</p>
+                        <a href="/new-loan" class="btn">Crear Nuevo Préstamo</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = loans.map(loan => `
+                <div class="loan-card" onclick="viewLoanDetails(${loan.id})">
+                    <div class="loan-header">
+                        <div class="loan-type">
+                            ${loan.loan_type === 'money' ? '💰' : '📦'} 
+                            ${loan.loan_type === 'money' ? 'Dinero' : 'Objeto'}
+                        </div>
+                        <div class="loan-status status-${loan.status}">${loan.status}</div>
+                    </div>
+                    
+                    <div class="loan-info">
+                        <div class="loan-title">
+                            ${loan.loan_type === 'money' ? 
+                                `$${loan.amount}` : 
+                                loan.object_name
+                            }
+                        </div>
+                        
+                        ${loan.loan_type === 'object' && loan.object_description ? 
+                            `<div class="loan-description">${loan.object_description}</div>` : 
+                            ''
+                        }
+                        
+                        <div class="loan-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Prestatario</div>
+                                <div class="detail-value">${loan.borrower_name}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Fecha de Préstamo</div>
+                                <div class="detail-value">${formatDate(loan.loan_date)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Fecha de Vencimiento</div>
+                                <div class="detail-value">${formatDate(loan.due_date)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Estado</div>
+                                <div class="detail-value">${getStatusText(loan.status)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="loan-actions">
+                        ${loan.status === 'active' ? 
+                            `<button class="action-btn success" onclick="markAsReturned(${loan.id}, event)">Marcar Devuelto</button>` : 
+                            ''
+                        }
+                        <button class="action-btn primary" onclick="editLoan(${loan.id}, event)">Editar</button>
+                        <button class="action-btn danger" onclick="deleteLoan(${loan.id}, event)">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función para aplicar filtros
+        function applyFilters() {
+            const status = document.getElementById('statusFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const dateFrom = document.getElementById('dateFromFilter').value;
+            const dateTo = document.getElementById('dateToFilter').value;
+            const search = document.getElementById('searchFilter').value.trim();
+            const searchField = document.getElementById('searchField').value;
+            
+            currentFilters = { status, type, dateFrom, dateTo, search };
+            
+            let filteredLoans = [...allLoans];
+            
+            // Aplicar filtros
+            if (status) {
+                filteredLoans = filteredLoans.filter(loan => loan.status === status);
+            }
+            
+            if (type) {
+                filteredLoans = filteredLoans.filter(loan => loan.loan_type === type);
+            }
+            
+            if (dateFrom) {
+                filteredLoans = filteredLoans.filter(loan => loan.loan_date >= dateFrom);
+            }
+            
+            if (dateTo) {
+                filteredLoans = filteredLoans.filter(loan => loan.loan_date <= dateTo);
+            }
+            
+            if (search) {
+                const term = search.toLowerCase();
+                filteredLoans = filteredLoans.filter(loan => {
+                    switch (searchField) {
+                        case 'object':
+                            if (loan.loan_type === 'money') {
+                                return String(loan.amount ?? '').toLowerCase().includes(term);
+                            }
+                            return (loan.object_name || '').toLowerCase().includes(term) ||
+                                   (loan.object_description || '').toLowerCase().includes(term);
+                        case 'borrower':
+                            return (loan.borrower_name || '').toLowerCase().includes(term);
+                        case 'notes':
+                            return (loan.notes || '').toLowerCase().includes(term);
+                        default:
+                            return (
+                                (loan.object_name && loan.object_name.toLowerCase().includes(term)) ||
+                                (loan.object_description && loan.object_description.toLowerCase().includes(term)) ||
+                                (loan.notes && loan.notes.toLowerCase().includes(term)) ||
+                                (loan.borrower_name && loan.borrower_name.toLowerCase().includes(term)) ||
+                                String(loan.amount ?? '').toLowerCase().includes(term)
+                            );
+                    }
+                });
+            }
+            
+            displayLoans(filteredLoans);
+            updateLoansCount(filteredLoans.length);
+        }
+
+        // Función para limpiar filtros
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('dateFromFilter').value = '';
+            document.getElementById('dateToFilter').value = '';
+            document.getElementById('searchFilter').value = '';
+            document.getElementById('searchField').value = 'all';
+            
+            currentFilters = {};
+            displayLoans(allLoans);
+            updateLoansCount(allLoans.length);
+        }
+
+        // Función para actualizar contador
+        function updateLoansCount(count) {
+            document.getElementById('loansCount').textContent = `${count} préstamo${count !== 1 ? 's' : ''}`;
+        }
+
+        // Función para formatear fecha
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('es-ES');
+        }
+
+        // Función para obtener texto del estado
+        function getStatusText(status) {
+            const statusMap = {
+                'active': 'Activo',
+                'returned': 'Devuelto',
+                'overdue': 'Vencido'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+            
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Acciones reales
+        function viewLoanDetails(loanId) {
+            const loan = allLoans.find(l => l.id === loanId);
+            if (!loan) return;
+            const details = [
+                `Tipo: ${loan.loan_type}`,
+                loan.loan_type === 'money' ? `Monto: $${loan.amount}` : `Objeto: ${loan.object_name}`,
+                `Prestatario: ${loan.borrower_name}`,
+                `Fecha de préstamo: ${formatDate(loan.loan_date)}`,
+                `Vence: ${formatDate(loan.due_date)}`,
+                `Estado: ${getStatusText(loan.status)}`,
+                loan.notes ? `Notas: ${loan.notes}` : ''
+            ].filter(Boolean).join('\n');
+            alert(details);
+        }
+
+        async function markAsReturned(loanId, event) {
+            event.stopPropagation();
+            if (!confirm('¿Marcar este préstamo como devuelto?')) return;
+            try {
+                const savedUser = localStorage.getItem('user');
+                const userId = savedUser ? (JSON.parse(savedUser).id || 1) : 1;
+                const res = await fetch(`${API_BASE_URL}/loans/${loanId}/return?user_id=${encodeURIComponent(userId)}`, {
+                    method: 'POST',
+                    headers: { 'X-User-Id': String(userId) }
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || 'Error al marcar devuelto');
+                showMessage('Préstamo marcado como devuelto', 'success');
+                await loadLoans();
+            } catch (e) {
+                showMessage(e.message || 'Error al marcar devuelto', 'error');
+            }
+        }
+
+        async function editLoan(loanId, event) {
+            event.stopPropagation();
+            const loan = allLoans.find(l => l.id === loanId);
+            if (!loan) return;
+            // Edición simple vía prompt
+            const due = prompt('Nueva fecha de vencimiento (YYYY-MM-DD):', loan.due_date);
+            if (due === null) return; // cancel
+            let payload = { due_date: due };
+            if (loan.loan_type === 'money') {
+                const amountStr = prompt('Nuevo monto (deja vacío para no cambiar):', loan.amount);
+                if (amountStr !== null && amountStr !== '') payload.amount = parseFloat(amountStr);
+            } else {
+                const objName = prompt('Nuevo nombre de objeto (deja vacío para no cambiar):', loan.object_name || '');
+                if (objName !== null && objName !== '') payload.object_name = objName;
+            }
+            const notes = prompt('Notas (deja vacío para no cambiar):', loan.notes || '');
+            if (notes !== null && notes !== '') payload.notes = notes;
+            try {
+                const savedUser = localStorage.getItem('user');
+                const userId = savedUser ? (JSON.parse(savedUser).id || 1) : 1;
+                const res = await fetch(`${API_BASE_URL}/loans/${loanId}?user_id=${encodeURIComponent(userId)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-User-Id': String(userId) },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || 'Error al actualizar préstamo');
+                showMessage('Préstamo actualizado', 'success');
+                await loadLoans();
+            } catch (e) {
+                showMessage(e.message || 'Error al actualizar', 'error');
+            }
+        }
+
+        async function deleteLoan(loanId, event) {
+            event.stopPropagation();
+            if (!confirm('¿Eliminar este préstamo? Esta acción no se puede deshacer.')) return;
+            try {
+                const savedUser = localStorage.getItem('user');
+                const userId = savedUser ? (JSON.parse(savedUser).id || 1) : 1;
+                const res = await fetch(`${API_BASE_URL}/loans/${loanId}?user_id=${encodeURIComponent(userId)}`, {
+                    method: 'DELETE',
+                    headers: { 'X-User-Id': String(userId) }
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || 'Error al eliminar préstamo');
+                showMessage('Préstamo eliminado', 'success');
+                await loadLoans();
+            } catch (e) {
+                showMessage(e.message || 'Error al eliminar', 'error');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLoans();
+            
+            // Event listeners para filtros en tiempo real
+            document.getElementById('searchFilter').addEventListener('input', function() {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(applyFilters, 300);
+            });
+            
+            document.getElementById('searchField').addEventListener('change', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('typeFilter').addEventListener('change', applyFilters);
+            document.getElementById('dateFromFilter').addEventListener('change', applyFilters);
+            document.getElementById('dateToFilter').addEventListener('change', applyFilters);
+        });
+    </script>
+</body>
+</html>

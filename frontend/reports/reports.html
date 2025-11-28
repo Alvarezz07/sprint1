@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Préstamos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 15px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 30px;
+        }
+
+        .btn-back {
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .card-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 18px;
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            color: #667eea;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .metric {
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            min-width: 150px;
+        }
+
+        .metric span {
+            display: block;
+            color: #a0a0a0;
+            font-size: 13px;
+        }
+
+        canvas {
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Reportes de Préstamos</h1>
+            <a href="/dashboard" class="btn-back">← Volver al Dashboard</a>
+        </div>
+
+        <div class="card">
+            <h2>Resumen general</h2>
+            <div class="metrics" id="summaryMetrics">
+                <div class="metric">
+                    <strong id="totalAsLender">0</strong>
+                    <span>Préstamos como prestamista</span>
+                </div>
+                <div class="metric">
+                    <strong id="amountAsLender">$0.00</strong>
+                    <span>Monto prestado</span>
+                </div>
+                <div class="metric">
+                    <strong id="totalAsBorrower">0</strong>
+                    <span>Préstamos como prestatario</span>
+                </div>
+                <div class="metric">
+                    <strong id="amountAsBorrower">$0.00</strong>
+                    <span>Monto recibido</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h2>Estado de Préstamos (Prestamista)</h2>
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <h2>Tipos de Préstamo (Prestamista)</h2>
+                <canvas id="typeChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h2>Estado de Préstamos (Prestatario)</h2>
+                <canvas id="statusBorrowerChart" height="200"></canvas>
+            </div>
+            <div class="card">
+                <h2>Tipos de Préstamo (Prestatario)</h2>
+                <canvas id="typeBorrowerChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+
+        function getCurrentUserId() {
+            try {
+                const savedUser = localStorage.getItem('user');
+                if (!savedUser) return 1;
+                const parsed = JSON.parse(savedUser);
+                return parsed?.id || 1;
+            } catch {
+                return 1;
+            }
+        }
+
+        function apiFetch(url, options = {}) {
+            const userId = getCurrentUserId();
+            const headers = Object.assign({ 'X-User-Id': String(userId) }, options.headers || {});
+            const sep = url.includes('?') ? '&' : '?';
+            return fetch(`${url}${sep}user_id=${encodeURIComponent(userId)}`, Object.assign({}, options, { headers }));
+        }
+
+        let charts = [];
+
+        function destroyCharts() {
+            charts.forEach(chart => chart.destroy());
+            charts = [];
+        }
+
+        function createPie(ctxId, data, title) {
+            const ctx = document.getElementById(ctxId);
+            if (!ctx) return;
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: ['#667eea', '#26de81', '#ff4757', '#f6b93b'],
+                        borderColor: 'rgba(255,255,255,0.8)'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } },
+                        title: { display: true, text: title, color: '#e0e0e0' }
+                    }
+                }
+            });
+            charts.push(chart);
+        }
+
+        function createBar(ctxId, data, title) {
+            const ctx = document.getElementById(ctxId);
+            if (!ctx) return;
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Cantidad',
+                        data: data.counts,
+                        backgroundColor: ['rgba(102,126,234,0.6)', 'rgba(38,222,129,0.7)', 'rgba(255,71,87,0.7)'],
+                        borderColor: ['rgba(102,126,234,1)', 'rgba(38,222,129,1)', 'rgba(255,71,87,1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } },
+                        title: { display: true, text: title, color: '#e0e0e0' }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.1)' }, beginAtZero: true }
+                    }
+                }
+            });
+            charts.push(chart);
+        }
+
+        function summaryFromData(summary = {}) {
+            return {
+                totalCount: summary.total_count || 0,
+                totalAmount: parseFloat(summary.total_amount || 0).toFixed(2),
+                byStatus: summary.by_status || {},
+                byType: summary.by_type || {}
+            };
+        }
+
+        async function loadReports() {
+            destroyCharts();
+            try {
+                const response = await apiFetch(`${API_BASE_URL}/loans/report`);
+                const data = await response.json();
+                console.log('[Reports] data', data);
+
+                const lender = summaryFromData(data.as_lender);
+                const borrower = summaryFromData(data.as_borrower);
+
+                document.getElementById('totalAsLender').textContent = lender.totalCount;
+                document.getElementById('amountAsLender').textContent = `$${lender.totalAmount}`;
+                document.getElementById('totalAsBorrower').textContent = borrower.totalCount;
+                document.getElementById('amountAsBorrower').textContent = `$${borrower.totalAmount}`;
+
+                const statusLabels = Object.keys(lender.byStatus);
+                createBar('statusChart', {
+                    labels: statusLabels.map(getStatusText),
+                    counts: statusLabels.map(key => lender.byStatus[key].count || 0)
+                }, 'Estados como prestamista');
+
+                const typeLabels = Object.keys(lender.byType);
+                createPie('typeChart', {
+                    labels: typeLabels.map(getTypeText),
+                    values: typeLabels.map(key => lender.byType[key].count || 0)
+                }, 'Tipos como prestamista');
+
+                const statusBorrowerLabels = Object.keys(borrower.byStatus);
+                createBar('statusBorrowerChart', {
+                    labels: statusBorrowerLabels.map(getStatusText),
+                    counts: statusBorrowerLabels.map(key => borrower.byStatus[key].count || 0)
+                }, 'Estados como prestatario');
+
+                const typeBorrowerLabels = Object.keys(borrower.byType);
+                createPie('typeBorrowerChart', {
+                    labels: typeBorrowerLabels.map(getTypeText),
+                    values: typeBorrowerLabels.map(key => borrower.byType[key].count || 0)
+                }, 'Tipos como prestatario');
+            } catch (error) {
+                alert('No se pudieron cargar los reportes');
+                console.error('[Reports] error', error);
+            }
+        }
+
+        function getStatusText(status) {
+            const map = {
+                active: 'Activos',
+                returned: 'Devueltos',
+                overdue: 'Vencidos'
+            };
+            return map[status] || status;
+        }
+
+        function getTypeText(type) {
+            const map = {
+                money: 'Dinero',
+                object: 'Objeto'
+            };
+            return map[type] || type;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadReports);
+    </script>
+</body>
+</html>
+
