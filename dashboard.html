@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Préstamos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .alerts-container {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-card {
+            padding: 15px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255, 193, 7, 0.15);
+            color: #f1c40f;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .alert-card.danger {
+            background: rgba(255, 71, 87, 0.18);
+            color: #ff4757;
+            border-color: rgba(255, 71, 87, 0.25);
+        }
+
+        .alert-card .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-card small {
+            color: rgba(255,255,255,0.65);
+        }
+
+        .loan-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .loan-info h4 {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+
+        .loan-info p {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .loan-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: rgba(38, 222, 129, 0.2);
+            color: #26de81;
+        }
+
+        .status-overdue {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .status-returned {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .notification-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .notification-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .notification-item p {
+            color: #a0a0a0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .notification-title {
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .notification-time {
+            color: #707070;
+            font-size: 12px;
+        }
+
+        .notification-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .type-info {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .type-success {
+            background: rgba(38, 222, 129, 0.2);
+            color: #26de81;
+        }
+
+        .type-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .type-error {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+
+        .error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+    </style>
+    <!-- Librería de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Dashboard de Préstamos</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div>
+                    <div id="userName" style="font-weight:600;">Usuario</div>
+                    <small id="userEmail" style="color:#a0a0a0;">email@dominio.com</small>
+                </div>
+            </div>
+            
+            <!-- Chart Section -->
+            <div class="main-content" style="margin-top: 20px;">
+                <h2 class="section-title">Resumen Visual</h2>
+                <div style="width: 100%; max-width: 600px; margin: 0 auto;">
+                    <canvas id="loansChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-menu">
+            <a href="#" class="nav-item active" onclick="showSection('dashboard')">Dashboard</a>
+            <a href="#" class="nav-item" onclick="showSection('my-loans')">Mis Préstamos</a>
+            <a href="#" class="nav-item" onclick="showSection('borrowed')">Préstamos Recibidos</a>
+            <a href="#" class="nav-item" onclick="showSection('new-loan')">Nuevo Préstamo</a>
+            <a href="#" class="nav-item" onclick="showSection('profile')">Perfil</a>
+            <a href="/reports" class="nav-item">Reportes</a>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section">
+            <div class="main-content" id="alertsSection" style="display:none;">
+                <h2 class="section-title">⚠️ Préstamos próximos a vencer</h2>
+                <div class="alerts-container" id="upcomingAlerts"></div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Préstamos Activos</h3>
+                    <div class="stat-value" id="activeLoans">0</div>
+                    <div class="stat-label">En curso</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Préstamos Devueltos</h3>
+                    <div class="stat-value" id="returnedLoans">0</div>
+                    <div class="stat-label">Completados</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Préstamos Vencidos</h3>
+                    <div class="stat-value" id="overdueLoans">0</div>
+                    <div class="stat-label">Requieren atención</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Monto Pendiente</h3>
+                    <div class="stat-value" id="pendingAmount">$0</div>
+                    <div class="stat-label">Por cobrar</div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-grid">
+                <div class="main-content">
+                    <h2 class="section-title">Préstamos Recientes</h2>
+                    <div id="recentLoans">
+                        <div class="loading">Cargando préstamos recientes...</div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="notification-item">
+                        <h4>🔔 Notificaciones</h4>
+                        <div id="notificationsList" class="notification-list">
+                            <div class="loading">Cargando notificaciones...</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="markAllNotificationsAsRead()" style="font-size: 12px; padding: 8px 16px;">Marcar todas como leídas</button>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <h4>Préstamos Vencidos</h4>
+                        <div id="overdueLoansList">
+                            <div class="loading">Cargando...</div>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <h4>Acciones Rápidas</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="#" class="btn" onclick="showSection('new-loan')">Crear Préstamo</a>
+                            <a href="#" class="btn btn-secondary" onclick="showSection('my-loans')">Ver Todos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other sections will be added here -->
+        <div id="my-loans-section" style="display: none;">
+            <div class="main-content">
+                <h2 class="section-title">Mis Préstamos</h2>
+                <div id="myLoansList">
+                    <div class="loading">Cargando préstamos...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="borrowed-section" style="display: none;">
+            <div class="main-content">
+                <h2 class="section-title">Préstamos Recibidos</h2>
+                <div id="borrowedLoansList">
+                    <div class="loading">Cargando préstamos recibidos...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="new-loan-section" style="display: none;">
+            <div class="main-content">
+                <h2 class="section-title">Crear Nuevo Préstamo</h2>
+                <div id="newLoanForm">
+                    <div class="loading">Cargando formulario...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-section" style="display: none;">
+            <div class="main-content">
+                <h2 class="section-title">Mi Perfil</h2>
+                <div id="profileForm">
+                    <div class="loading">Cargando perfil...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = window.location.origin;
+        
+        // Estado global de la aplicación
+        let currentUser = null;
+        let dashboardData = null;
+
+        // Función para mostrar secciones
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('[id$="-section"]').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName + '-section').style.display = 'block';
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Cargar datos de la sección si es necesario
+            loadSectionData(sectionName);
+        }
+
+        // Función para cargar datos de secciones
+        async function loadSectionData(sectionName) {
+            switch(sectionName) {
+                case 'dashboard':
+                    await loadDashboardData();
+                    break;
+                case 'my-loans':
+                    await loadMyLoans();
+                    break;
+                case 'borrowed':
+                    await loadBorrowedLoans();
+                    break;
+                case 'new-loan':
+                    await loadNewLoanForm();
+                    break;
+                case 'profile':
+                    await loadProfileForm();
+                    break;
+            }
+        }
+
+        // Helper para incluir el ID del usuario actual en headers
+        function getCurrentUserId() {
+            try {
+                const savedUser = localStorage.getItem('user');
+                if (!savedUser) return 1;
+                const parsed = JSON.parse(savedUser);
+                return parsed?.id || 1;
+            } catch { return 1; }
+        }
+
+        function apiFetch(url, options = {}) {
+            const userId = getCurrentUserId();
+            const headers = Object.assign({'X-User-Id': String(userId)}, (options.headers || {}));
+            const sep = url.includes('?') ? '&' : '?';
+            const withUser = `${url}${sep}user_id=${encodeURIComponent(userId)}`;
+            return fetch(withUser, Object.assign({}, options, { headers }));
+        }
+
+        // Función para cargar datos del dashboard
+        async function loadDashboardData() {
+            try {
+                console.log('[Dashboard] fetching /loans/dashboard ...');
+                const response = await apiFetch(`${API_BASE_URL}/loans/dashboard`);
+                const data = await response.json();
+                console.log('[Dashboard] data:', {
+                    user: data?.user?.id,
+                    stats: data?.stats,
+                    recent_count: data?.recent_loans?.length,
+                    overdue_count: data?.overdue_loans?.length
+                });
+                
+                if (response.ok) {
+                    dashboardData = data;
+                    updateDashboard(data);
+                } else {
+                    showError('Error al cargar datos del dashboard');
+                }
+                
+                // Cargar notificaciones y alertas
+                console.log('[Dashboard] fetching notifications...');
+                loadNotifications();
+                console.log('[Dashboard] fetching upcoming alerts...');
+                await loadUpcomingAlerts();
+                console.log('[Dashboard] fetching borrowed loans...');
+                await loadBorrowedLoans();
+                
+            } catch (error) {
+                console.error('[Dashboard] error:', error);
+                showError('Error de conexión al cargar dashboard');
+            }
+        }
+
+        // Función para actualizar el dashboard
+        function updateDashboard(data) {
+            // Actualizar información del usuario (si los elementos existen)
+            const nameEl = document.getElementById('userName');
+            const emailEl = document.getElementById('userEmail');
+            const avatarEl = document.getElementById('userAvatar');
+            if (nameEl) nameEl.textContent = data.user?.name || 'Usuario';
+            if (emailEl) emailEl.textContent = data.user?.email || '';
+            if (avatarEl) avatarEl.textContent = (data.user?.name || 'U').charAt(0).toUpperCase();
+
+            // Actualizar estadísticas con valores seguros
+            const stats = data.stats || { total_active_loans:0, total_returned_loans:0, total_overdue_loans:0, pending_amount:0 };
+            document.getElementById('activeLoans').textContent = stats.total_active_loans ?? 0;
+            document.getElementById('returnedLoans').textContent = stats.total_returned_loans ?? 0;
+            document.getElementById('overdueLoans').textContent = stats.total_overdue_loans ?? 0;
+            const pending = Number(stats.pending_amount || 0);
+            document.getElementById('pendingAmount').textContent = `$${pending.toFixed(2)}`;
+
+            // Actualizar préstamos recientes
+            updateRecentLoans(data.recent_loans || []);
+
+            // Actualizar préstamos vencidos
+            updateOverdueLoans(data.overdue_loans || []);
+
+            // Actualizar gráfica
+            renderLoansChart({
+                active: stats.total_active_loans || 0,
+                returned: stats.total_returned_loans || 0,
+                overdue: stats.total_overdue_loans || 0
+            });
+        }
+
+        // Función para actualizar préstamos recientes
+        function updateRecentLoans(loans) {
+            const container = document.getElementById('recentLoans');
+            
+            if (loans.length === 0) {
+                container.innerHTML = '<div class="loading">No hay préstamos recientes</div>';
+                return;
+            }
+            
+            container.innerHTML = loans.map(loan => `
+                <div class="loan-item">
+                    <div class="loan-info">
+                        <h4>${loan.object_name || `$${loan.amount}`}</h4>
+                        <p>Para: ${loan.borrower_name} • ${new Date(loan.loan_date).toLocaleDateString()}</p>
+                    </div>
+                    <div class="loan-status status-${loan.status}">${loan.status}</div>
+                </div>
+            `).join('');
+        }
+
+        // Función para actualizar préstamos vencidos
+        function updateOverdueLoans(loans) {
+            const container = document.getElementById('overdueLoansList');
+            
+            if (loans.length === 0) {
+                container.innerHTML = '<div class="loading">No hay préstamos vencidos</div>';
+                return;
+            }
+            
+            container.innerHTML = loans.map(loan => `
+                <div style="padding: 10px; background: rgba(255, 71, 87, 0.1); border-radius: 8px; margin-bottom: 10px;">
+                    <strong>${loan.object_name || `$${loan.amount}`}</strong><br>
+                    <small>Vencido: ${new Date(loan.due_date).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+        }
+
+        // Función para cargar alertas de préstamos próximos
+        async function loadUpcomingAlerts() {
+            const container = document.getElementById('upcomingAlerts');
+            const section = document.getElementById('alertsSection');
+            if (!container || !section) return;
+            container.innerHTML = '<div class="loading">Cargando alertas...</div>';
+            try {
+                const response = await apiFetch(`${API_BASE_URL}/loans/upcoming`);
+                const upcoming = await response.json();
+                const cards = [];
+                const today = new Date();
+
+                function cardTemplate(item, roleLabel) {
+                    const dueDate = new Date(item.due_date);
+                    const msInDay = 1000 * 60 * 60 * 24;
+                    const daysLeft = Math.ceil((dueDate - today) / msInDay);
+                    const danger = daysLeft <= 1 ? 'danger' : '';
+                    const name = roleLabel === 'Prestatario'
+                        ? item.borrower_name
+                        : item.lender_name;
+                    const description = item.loan_type === 'money'
+                        ? `Monto: $${item.amount}`
+                        : `Objeto: ${item.object_name || '—'}`;
+                    return `
+                        <div class="alert-card ${danger}">
+                            <div class="alert-header">
+                                <strong>${roleLabel === 'Prestatario' ? '💼' : '💸'} ${roleLabel}</strong>
+                                <small>Vence en ${daysLeft} día${daysLeft === 1 ? '' : 's'}</small>
+                            </div>
+                            <div>${description}</div>
+                            <div><small>${roleLabel}: ${name}</small></div>
+                            <div><small>Fecha de vencimiento: ${dueDate.toLocaleDateString()}</small></div>
+                        </div>
+                    `;
+                }
+
+                (upcoming.as_lender || []).forEach(item => {
+                    cards.push(cardTemplate(item, 'Prestatario'));
+                });
+                (upcoming.as_borrower || []).forEach(item => {
+                    cards.push(cardTemplate(item, 'Prestamista'));
+                });
+
+                if (cards.length === 0) {
+                    section.style.display = 'none';
+                    container.innerHTML = '';
+                } else {
+                    section.style.display = 'block';
+                    container.innerHTML = cards.join('');
+                }
+            } catch (error) {
+                console.error('Error al cargar alertas próximas:', error);
+                section.style.display = 'block';
+                container.innerHTML = '<div class="alert-card danger">No se pudieron cargar las alertas de vencimiento.</div>';
+            }
+        }
+
+        // Función para cargar notificaciones
+        async function loadNotifications() {
+            try {
+                const response = await apiFetch(`${API_BASE_URL}/notifications/?limit=5`);
+                const notifications = await response.json();
+                console.log('[Dashboard] notifications:', notifications?.length);
+                
+                updateNotificationsList(notifications);
+            } catch (error) {
+                console.error('Error al cargar notificaciones:', error);
+                document.getElementById('notificationsList').innerHTML = '<div class="loading">Error al cargar notificaciones</div>';
+            }
+        }
+
+        // Función para actualizar la lista de notificaciones
+        function updateNotificationsList(notifications) {
+            const container = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = '<div class="loading">No hay notificaciones</div>';
+                return;
+            }
+            
+            container.innerHTML = notifications.map(notification => `
+                <div class="notification-item ${notification.is_read ? '' : 'unread'}" onclick="markNotificationAsRead(${notification.id})">
+                    <div class="notification-title">
+                        <span class="notification-type type-${notification.type}">${notification.type}</span>
+                        ${notification.title}
+                    </div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-time">${formatNotificationTime(notification.created_at)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Función para formatear tiempo de notificación
+        function formatNotificationTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Ahora';
+            if (diffMins < 60) return `Hace ${diffMins}m`;
+            if (diffHours < 24) return `Hace ${diffHours}h`;
+            if (diffDays < 7) return `Hace ${diffDays}d`;
+            return date.toLocaleDateString();
+        }
+
+        // Función para marcar notificación como leída
+        async function markNotificationAsRead(notificationId) {
+            try {
+                await apiFetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+                    method: 'POST'
+                });
+                
+                // Recargar notificaciones
+                loadNotifications();
+            } catch (error) {
+                console.error('Error al marcar notificación como leída:', error);
+            }
+        }
+
+        // Función para marcar todas las notificaciones como leídas
+        async function markAllNotificationsAsRead() {
+            try {
+                await apiFetch(`${API_BASE_URL}/notifications/mark-all-read`, {
+                    method: 'POST'
+                });
+                
+                // Recargar notificaciones
+                loadNotifications();
+            } catch (error) {
+                console.error('Error al marcar todas las notificaciones como leídas:', error);
+            }
+        }
+
+        // Función para cargar mis préstamos
+        async function loadMyLoans() {
+            const container = document.getElementById('myLoansList');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">Mis Préstamos</h3>
+                    <p style="color: #a0a0a0; margin-bottom: 30px;">Visualiza y gestiona todos tus préstamos con filtros avanzados</p>
+                    <a href="/my-loans" class="btn" style="display: inline-block; text-decoration: none;">Ver Todos los Préstamos</a>
+                </div>
+            `;
+        }
+
+        // Función para cargar préstamos recibidos
+        async function loadBorrowedLoans() {
+            try {
+                const response = await apiFetch(`${API_BASE_URL}/loans/borrowed`);
+                const loans = await response.json();
+                console.log('[Dashboard] borrowed loans:', loans?.length);
+                
+                const container = document.getElementById('borrowedLoansList');
+                container.innerHTML = loans.map(loan => `
+                    <div class="loan-item">
+                        <div class="loan-info">
+                            <h4>${loan.object_name || `$${loan.amount}`}</h4>
+                            <p>De: ${loan.lender_name} • ${new Date(loan.loan_date).toLocaleDateString()}</p>
+                        </div>
+                        <div class="loan-status status-${loan.status}">${loan.status}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showError('Error al cargar préstamos recibidos');
+            }
+        }
+
+        // Función para cargar formulario de nuevo préstamo
+        async function loadNewLoanForm() {
+            const container = document.getElementById('newLoanForm');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">Crear Nuevo Préstamo</h3>
+                    <p style="color: #a0a0a0; margin-bottom: 30px;">Accede al formulario completo para crear un nuevo préstamo</p>
+                    <a href="/new-loan" class="btn" style="display: inline-block; text-decoration: none;">Abrir Formulario</a>
+                </div>
+            `;
+        }
+
+        // Función para cargar formulario de perfil
+        async function loadProfileForm() {
+            const container = document.getElementById('profileForm');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">Mi Perfil</h3>
+                    <p style="color: #a0a0a0; margin-bottom: 30px;">Edita tu información personal y configuración de cuenta</p>
+                    <a href="/profile" class="btn" style="display: inline-block; text-decoration: none;">Abrir Perfil</a>
+                </div>
+            `;
+        }
+
+        // Función para mostrar errores
+        function showError(message) {
+            console.error(message);
+            // Aquí podrías mostrar un toast o modal de error
+        }
+
+        // ================== Gráfica ==================
+        let loansChartInstance = null;
+        function renderLoansChart(values) {
+            const ctx = document.getElementById('loansChart');
+            if (!ctx || typeof Chart === 'undefined') return;
+
+            const total = (values.active || 0) + (values.returned || 0) + (values.overdue || 0);
+            const data = {
+                labels: ['Activos', 'Recuperados', 'Vencidos'],
+                datasets: [{
+                    label: 'Préstamos',
+                    data: [values.active || 0, values.returned || 0, values.overdue || 0],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.6)',   // azul para activos
+                        'rgba(38, 222, 129, 0.7)',    // verde para recuperados
+                        'rgba(255, 71, 87, 0.7)'      // rojo para vencidos
+                    ],
+                    borderColor: [
+                        'rgba(102, 126, 234, 1)',
+                        'rgba(38, 222, 129, 1)',
+                        'rgba(255, 71, 87, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            const options = {
+                plugins: {
+                    legend: { labels: { color: '#e0e0e0' } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed}` } },
+                    title: {
+                        display: true,
+                        text: `Total préstamos: ${total}`,
+                        color: '#e0e0e0',
+                        padding: { bottom: 10 }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+                    y: { ticks: { color: '#a0a0a0' }, grid: { color: 'rgba(255,255,255,0.08)' }, beginAtZero: true }
+                }
+            };
+
+            // Si ya existe, actualizar
+            if (loansChartInstance) {
+                loansChartInstance.data = data;
+                loansChartInstance.options = options;
+                loansChartInstance.update();
+                return;
+            }
+
+            // Crear bar chart (visual claro: verde/rojo indica a tiempo/no a tiempo)
+            loansChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data,
+                options
+            });
+        }
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay un usuario logueado
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                loadDashboardData();
+            } else {
+                // Redirigir al login si no hay usuario
+                window.location.href = '/login';
+            }
+        });
+    </script>
+</body>
+</html>
